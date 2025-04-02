@@ -1,0 +1,117 @@
+---
+
+matomo_enabled: true
+
+matomo_version: 5.3.1
+
+matomo_identifier: matomo
+
+matomo_scheme: https
+
+# The fully-qualified name of your Matomo server (e.g. `matomo.example.com`)
+matomo_hostname: ''
+
+matomo_path_prefix: /
+
+matomo_uid: ''
+matomo_gid: ''
+
+matomo_container_image: "{{ matomo_container_image_registry_prefix }}matomo:{{ matomo_container_image_tag }}"
+matomo_container_image_tag: "{{ matomo_version }}"
+matomo_container_image_force_pull: "{{ matomo_container_image.endswith(':latest') }}"
+matomo_container_image_registry_prefix: docker.io/
+
+matomo_base_path: "/{{ matomo_identifier }}"
+matomo_data_dir_path: "{{ matomo_base_path }}/data"
+matomo_config_dir_path: "{{ matomo_base_path }}/config"
+
+matomo_http_bind_port: '3001'
+
+matomo_systemd_required_systemd_services_list: "{{ matomo_systemd_required_systemd_services_list_default + matomo_systemd_required_systemd_services_list_auto + matomo_systemd_required_systemd_services_list_custom }}"
+matomo_systemd_required_systemd_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+matomo_systemd_required_systemd_services_list_auto: []
+matomo_systemd_required_systemd_services_list_custom: []
+
+# Matomo only supports Mysql/Mariadb
+matomo_config_database_hostname: ''
+matomo_config_database_port: 5432
+matomo_config_database_name: matomo
+matomo_config_database_username: ''
+matomo_config_database_password: ''
+
+matomo_config_root_url: "{{ matomo_scheme }}://{{ matomo_hostname }}{{ matomo_path_prefix }}"
+
+# matomo_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `roles/custom/matomo/templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `matomo_container_labels_additional_labels`.
+matomo_container_labels_traefik_enabled: true
+matomo_container_labels_traefik_docker_network: ''
+matomo_container_labels_traefik_hostname: "{{ matomo_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/matomo`).
+matomo_container_labels_traefik_path_prefix: "{{ matomo_path_prefix }}"
+matomo_container_labels_traefik_rule: "Host(`{{ matomo_container_labels_traefik_hostname }}`){% if matomo_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ matomo_container_labels_traefik_path_prefix | quote }}`){% endif %}"
+matomo_container_labels_traefik_priority: 0
+matomo_container_labels_traefik_entrypoints: web-secure
+matomo_container_labels_traefik_tls: "{{ matomo_container_labels_traefik_entrypoints != 'web' }}"
+matomo_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls whether a compression middleware will be injected into the middlewares list.
+# This compression middleware is supposed to be defined elsewhere (using labels or a File provider, etc.) and is merely referenced by this router.
+matomo_container_labels_traefik_compression_middleware_enabled: false
+matomo_container_labels_traefik_compression_middleware_name: ""
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `matomo_container_labels_traefik_additional_request_headers_custom`
+matomo_container_labels_traefik_additional_request_headers: "{{ matomo_container_labels_traefik_additional_request_headers_auto | combine(matomo_container_labels_traefik_additional_request_headers_custom) }}"
+matomo_container_labels_traefik_additional_request_headers_auto: |
+  {{
+    {}
+    | combine ({'X-Script-Name': matomo_path_prefix} if matomo_path_prefix != '/' else {})
+  }}
+matomo_container_labels_traefik_additional_request_headers_custom: {}
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `matomo_container_labels_traefik_additional_response_headers_custom`
+matomo_container_labels_traefik_additional_response_headers: "{{ matomo_container_labels_traefik_additional_response_headers_auto | combine(matomo_container_labels_traefik_additional_response_headers_custom) }}"
+matomo_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': matomo_http_header_xss_protection} if matomo_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': matomo_http_header_frame_options} if matomo_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': matomo_http_header_content_type_options} if matomo_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': matomo_http_header_content_security_policy} if matomo_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': matomo_http_header_content_permission_policy} if matomo_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': matomo_http_header_strict_transport_security} if matomo_http_header_strict_transport_security and matomo_container_labels_traefik_tls else {})
+  }}
+matomo_container_labels_traefik_additional_response_headers_custom: {}
+
+# matomo_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `roles/custom/matomo/templates/labels.j2` for details.
+#
+# Example:
+# matomo_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+matomo_container_labels_additional_labels: ''
+
+# matomo_container_additional_environment_variables contains a multiline string with additional environment variables to pass to the container.
+#
+# Example:
+# matomo_container_additional_environment_variables: |
+#   VAR=1
+#   ANOTHER=value
+matomo_container_additional_environment_variables: ''
+
+matomo_container_network: "{{ matomo_identifier }}"
+
+# A list of additional container networks that the container would be connected to.
+# The playbook does not create these networks, so make sure they already exist.
+matomo_container_additional_networks: "{{ matomo_container_additional_networks_auto + matomo_container_additional_networks_custom }}"
+# matomo_container_additional_networks_auto is reserved for usage by the playbook.
+# Your custom networks should go into matomo_container_additional_networks_custom.
+matomo_container_additional_networks_auto: []
+matomo_container_additional_networks_custom: []
+
+# Additional environment variables.
+matomo_environment_variables_additional_variables: ''

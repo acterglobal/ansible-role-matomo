@@ -1,0 +1,25 @@
+---
+
+- name: Check existence of Matomo systemd service
+  ansible.builtin.stat:
+    path: "{{ devture_systemd_docker_base_systemd_path }}/{{ matomo_identifier }}.service"
+  register: matomo_service_stat
+
+- when: matomo_service_stat.stat.exists | bool
+  block:
+    - name: Ensure Matomo systemd service is stopped
+      ansible.builtin.service:
+        name: "{{ matomo_identifier }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+
+    - name: Ensure Matomo systemd service does not exists
+      ansible.builtin.file:
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ matomo_identifier }}.service"
+        state: absent
+
+    - name: Ensure Matomo path doesn't exist
+      ansible.builtin.file:
+        path: "{{ matomo_base_path }}"
+        state: absent

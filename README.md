@@ -2,15 +2,14 @@
 
 Matomo is a self-hosted, open source web analytics application. This role helps you to set up [Matomo's default docker image](https://hub.docker.com/_/matomo/), and configure it for Traefik and MariaDB.
 
-## Installing
+This role *implicitly* depends on:
 
-To configure and install Matomo on your own server(s), you should use a playbook like [Mother of all self-hosting](https://github.com/mother-of-all-self-hosting/mash-playbook) or write your own.
+- [`com.devture.ansible.role.playbook_help`](https://github.com/devture/com.devture.ansible.role.playbook_help)
+- [`com.devture.ansible.role.systemd_docker_base`](https://github.com/devture/com.devture.ansible.role.systemd_docker_base)
 
-# Configuring this role for your playbook
+Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
 
-```
-
-```
+For an Ansible playbook which integrates this role and makes it easier to use, see the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
 
 ## Support
 
