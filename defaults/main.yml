@@ -33,11 +33,11 @@ matomo_systemd_required_systemd_services_list_auto: []
 matomo_systemd_required_systemd_services_list_custom: []
 
 # Matomo only supports Mysql/Mariadb
-matomo_config_database_hostname: ''
-matomo_config_database_port: 5432
+matomo_config_database_hostname: "{{ mariadb_identifier if mariadb_enabled | default(false) else '' }}"
+matomo_config_database_port: "{{ '3306' if mariadb_enabled else '' }}"
 matomo_config_database_name: matomo
-matomo_config_database_username: ''
-matomo_config_database_password: ''
+matomo_config_database_username: matomo
+matomo_config_database_password: "{{ '%s' | format(mash_playbook_generic_secret_key) | password_hash('sha512', 'db.matomo', rounds=655555) | to_uuid }}"
 
 matomo_config_root_url: "{{ matomo_scheme }}://{{ matomo_hostname }}{{ matomo_path_prefix }}"
 
