@@ -1,5 +1,7 @@
 ---
 
+# Project source code URL: https://github.com/acterglobal/ansible-role-matomo
+
 matomo_enabled: true
 
 matomo_version: 5.3.1
