@@ -27,7 +27,7 @@ matomo_base_path: "/{{ matomo_identifier }}"
 matomo_data_dir_path: "{{ matomo_base_path }}/data"
 matomo_config_dir_path: "{{ matomo_base_path }}/config"
 
-matomo_http_bind_port: '3001'
+matomo_http_bind_port: ''
 
 matomo_systemd_required_systemd_services_list: "{{ matomo_systemd_required_systemd_services_list_default + matomo_systemd_required_systemd_services_list_auto + matomo_systemd_required_systemd_services_list_custom }}"
 matomo_systemd_required_systemd_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
