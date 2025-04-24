@@ -1,6 +1,6 @@
 ---
 
-# Project source code URL: https://github.com/acterglobal/ansible-role-matomo
+# Project source code URL: https://github.com/matomo-org/matomo
 
 matomo_enabled: true
 
